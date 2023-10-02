@@ -12,7 +12,7 @@ struct ArticleListView: View {
     
     var body: some View {
         NavigationView {
-            Group {
+            ZStack {
                 if viewModel.isLoading {
                     ProgressView()
                 } else {
@@ -20,32 +20,37 @@ struct ArticleListView: View {
                         SearchView(text: $viewModel.searchText)
                         List {
                             ForEach(viewModel.filteredArticles, id: \.self) { article in
-                                VStack {
-                                    if let urlToImage = article.urlToImage{
-                                        AsyncImage(url: URL(string: urlToImage)!){ phase in
-                                            switch phase {
-                                            case .success(let image):
+                                ZStack {
+                                    NavigationLink(destination: ArticleDetailView(article: article)) {
+                                    }.opacity(0.0)
+                                    VStack {
+                                        if let urlToImage = article.urlToImage,
+                                           let url = URL(string: urlToImage) {
+                                            AsyncImage(url: url) {image in
                                                 image
                                                     .resizable()
                                                     .scaledToFit()
                                                     .cornerRadius(10)
-                                            case .failure, .empty:
-                                                Color.gray
-                                            @unknown default:
-                                                Color.gray
+                                            } placeholder: {
+                                                Image(systemName: "photo.fill")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundColor(Color.gray.opacity(0.5))
+                                                    .frame(width: 100, height: 100)
                                             }
                                         }
+                                        
+                                        Text(article.title ?? "")
+                                            .font(.body)
+                                            .lineLimit(2)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding([.bottom,.top], 2)
+                                        Text(article.description ?? "")
+                                            .font(.body)
+                                            .lineLimit(3)
+                                            .foregroundColor(.gray)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                     }
-                                    
-                                    Text(article.title ?? "")
-                                        .font(.body)
-                                        .lineLimit(2)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text(article.description ?? "")
-                                        .font(.body)
-                                        .lineLimit(3)
-                                        .foregroundColor(.gray)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
                         }.listStyle(PlainListStyle())

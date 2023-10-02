@@ -12,7 +12,20 @@ struct NewsAppApp: App {
    
     var body: some Scene {
         WindowGroup {
-            ArticleListView()
+            TabView {
+                ArticleListView()
+                    .tabItem {
+                        Image(systemName: "house.circle.fill")
+                    }
+                    .tag(0)
+                ZStack{
+                    Text(" profiles")
+                }
+                    .tabItem {
+                        Image(systemName: "person.circle.fill")
+                    }
+                    .tag(1)
+            }
         }
     }
 }
